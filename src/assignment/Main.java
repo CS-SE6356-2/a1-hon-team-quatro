@@ -9,15 +9,15 @@ public class Main {
 
 class NamePrinter {
     /**
-     * Prints the names of the group members separated by spaces.
+     * Prints the names of the group members separated by commas.
      */
     public void printNames() {
-        String separator = "+";
+        String separator = ",";
 
         String[] names = {
                 "Name 1",
                 "Name 2",
-                "Name 3",
+                "Jacob",
                 "Name 4",
                 "Name 5"};
 
