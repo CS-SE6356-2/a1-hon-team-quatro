@@ -15,7 +15,7 @@ class NamePrinter {
         String separator = ",";
 
         String[] names = {
-                "Name 1",
+                "Chris",
                 "Name 2",
                 "Jacob",
                 "Name 4",
