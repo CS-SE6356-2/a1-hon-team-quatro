@@ -9,16 +9,16 @@ public class Main {
 
 class NamePrinter {
     /**
-     * Prints the names of the group members separated by spaces.
+     * Prints the names of the group members separated by commas.
      */
     public void printNames() {
-        String separator = "-";
+        String separator = ",";
 
         String[] names = {
-                "Name 1",
-                "Tyler Heald",
-                "Name 3",
-                "Name 4",
+                "Chris",
+                "Name 2",
+                "Jacob",
+                "Jonathan",
                 "Name 5"};
 
         System.out.println(String.join(separator, names));
