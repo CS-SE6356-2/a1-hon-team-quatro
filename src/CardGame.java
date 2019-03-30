@@ -52,16 +52,25 @@ public class CardGame
 	{
 		
 	}
-	private playerQueue sortPlayersInPlayOrder()
+	
+	/**
+	 * Sorts the list of players initially in a game by finding the dealer, adding them and the other players into a circular linked list called playerQueue
+	 * @author Chris
+	 * @return playerQueue
+	 */
+	private PlayerQueue sortPlayersInPlayOrder()
 	{
-		int dealerNum;
+		int dealerNum;	//Track the index of the dealer
+		 //Index through array until dealer is found, if not then stop at end of list
 		for(dealerNum = 0;dealerNum < players.length||players[dealerNum].role.equals("Dealer"); dealerNum++);
 		
-		playerQueue playOrder = new playerQueue();
-		for(int i = 0; i < players.length; i++)
-			playOrder.enqueue(players[(dealerNum+i)%players.length]);
+		//Create the playerQueue
+		PlayerQueue playOrder = new PlayerQueue();
 		
-		return playOrder;
+		for(int i = 0; i < players.length; i++)							//For each player
+			playOrder.enqueue(players[(dealerNum+i)%players.length]);	//Starting at the dealer, add them to the queue
+		
+		return playOrder;	//Return  the queue
 	}
 	
 	private String checkForTrick(List<Card> trick)
@@ -91,7 +100,7 @@ public class CardGame
 	
 	public String playGame()
 	{
-		sortPlayersInPlayOrder();		//Before starting the rounds, Sort the players
+		PlayerQueue playOrder = sortPlayersInPlayOrder(); //Before starting the rounds, Sort the players
 		dealCards();					//Then deal out the cards to the players and cardPiles
 		
 		//TODO the control flow
