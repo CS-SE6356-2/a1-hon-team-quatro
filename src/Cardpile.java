@@ -51,21 +51,22 @@ public class Cardpile {
 
 	//shuffles the card pile, emulating how a physical deck of cards is shuffled
 	void shuffle() {
-		LinkedList<Card> half1 = (LinkedList<Card>) cards.subList(0,numOfCards/2);//split the deck in half
-		LinkedList<Card> half2 = (LinkedList<Card>) cards.subList(numOfCards/2,cards.size());
-		cards.clear();
-		
-		while(!half1.isEmpty() && !half2.isEmpty()) {//while there are cards in both halfs
-			if(Math.random() < 0.5) {//50% chance to chose half1 or half2
-				cards.add(half1.removeFirst());//takes the card from the first half and adds it back into the pile
+		for(int i = 0;i<7;i++) {//repeats the shuffling mechanic several times to ensure the cards are well shuffled
+			LinkedList<Card> half1 = (LinkedList<Card>) cards.subList(0,numOfCards/2);//split the deck in half
+			LinkedList<Card> half2 = (LinkedList<Card>) cards.subList(numOfCards/2,cards.size());
+			cards.clear();
+			
+			while(!half1.isEmpty() && !half2.isEmpty()) {//while there are cards in both halfs
+				if(Math.random() < 0.5) {//50% chance to chose half1 or half2
+					cards.add(half1.removeFirst());//takes the card from the first half and adds it back into the pile
+				}
+				else{
+					cards.add(half2.removeFirst());//takes the card from the second half and adds it back into the pile
+				}
 			}
-			else{
-				cards.add(half2.removeFirst());//takes the card from the second half and adds it back into the pile
-			}
+			cards.addAll(half1);//adds remaining cards
+			cards.addAll(half2);//one of these halves will be empty
 		}
-		cards.addAll(half1);//adds remaining cards
-		cards.addAll(half2);//one of these halves will be empty
-		
 	}
 	
 }
