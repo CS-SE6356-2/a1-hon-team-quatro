@@ -1,3 +1,4 @@
+import java.util.LinkedList;
 
 public class CardpileTest {
 
@@ -5,6 +6,11 @@ public class CardpileTest {
 		Cardpile pile = new Cardpile();
 		
 		//add some cards
+		LinkedList<Card> cards = new LinkedList<Card>();
+		for(int i = 1; i < 53; i++)
+			cards.add(new Card(i+"","Big52"));
+		
+		pile.addCardsOnTop(cards);
 		
 		pile.shuffle();
 		

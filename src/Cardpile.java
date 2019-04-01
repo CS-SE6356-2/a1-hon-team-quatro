@@ -52,8 +52,9 @@ public class Cardpile {
 	//shuffles the card pile, emulating how a physical deck of cards is shuffled
 	void shuffle() {
 		for(int i = 0;i<7;i++) {//repeats the shuffling mechanic several times to ensure the cards are well shuffled
-			LinkedList<Card> half1 = (LinkedList<Card>) cards.subList(0,numOfCards/2);//split the deck in half
-			LinkedList<Card> half2 = (LinkedList<Card>) cards.subList(numOfCards/2,cards.size());
+			//LinkedList<Card> half1 = (LinkedList<Card>) cards.subList(0,numOfCards/2); //Can't go up like this, changed to line below
+			LinkedList<Card> half1 = new LinkedList<Card>(cards.subList(0,numOfCards/2));//split the deck in half
+			LinkedList<Card> half2 = new LinkedList<Card>(cards.subList(numOfCards/2,cards.size()));
 			cards.clear();
 			
 			while(!half1.isEmpty() && !half2.isEmpty()) {//while there are cards in both halfs
