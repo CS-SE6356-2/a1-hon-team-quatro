@@ -7,18 +7,18 @@ public class CardGame
 	////Member Variables////
 	Player[] players;			//Holds the data for each player
 	Deck cardDeck;				//Holds the information for each card
-	CardPile[] piles;			
+	Cardpile[] piles;			
 	
 	////Constructor////
 	public CardGame(int numOfPlayers, File cardList)
 	{
 		players = new Player[numOfPlayers];		//Create a list of Players
 		cardDeck = new Deck(cardList);			//Create the deck of cards. The Card Game class thus has a reference to all cards
-		piles = new CardPile[2];				//Create the list of piles, will give amount that fits a specific card game
+		piles = new Cardpile[2];				//Create the list of piles, will give amount that fits a specific card game
 		
 		//Create Card Piles
-		piles[0] = new CardPile("Draw");
-		piles[1] = new CardPile("Used");
+		piles[0] = new Cardpile("Draw");
+		piles[1] = new Cardpile("Used");
 		
 		//Create Players
 		createPlayers();
@@ -34,14 +34,14 @@ public class CardGame
 		for(Player player: players)
 		{
 			for(;currentCard < 7; currentCard++)			//Get a list of cards that will be of even size to a player. UNO starts off with players having 7 cards
-				temp.add(cardDeck.cards[currentCard]);		//add card reference to list
+				temp.add(cardDeck.cards.get(currentCard));		//add card reference to list
 			//Give players their cards
 			temp.clear();									//Clear the list so we can give the next player their cards
 		}
 		
 		//Give rest of cards to draw pile
 		for(;currentCard < cardDeck.numOfCards; currentCard++)
-			temp.add(cardDeck.cards[currentCard]);
+			temp.add(cardDeck.cards.get(currentCard));
 		piles[0].addCardsOnTop(temp);
 		temp.clear();
 		
@@ -62,7 +62,7 @@ public class CardGame
 	{
 		int dealerNum;	//Track the index of the dealer
 		 //Index through array until dealer is found, if not then stop at end of list
-		for(dealerNum = 0;dealerNum < players.length||players[dealerNum].role.equals("Dealer"); dealerNum++);
+		for(dealerNum = 0;dealerNum < players.length||players[dealerNum].getRole().equals("Dealer"); dealerNum++);
 		
 		//Create the playerQueue
 		PlayerQueue playOrder = new PlayerQueue();
@@ -92,7 +92,7 @@ public class CardGame
 	private int checkWinCondition()
 	{
 		for(int i = 0; i < players.length; i++)
-			if(players[i].hand.numOfCards == 0)
+			if(players[i].getNumOfCards() == 0)
 				return i;
 		return -1;
 	}

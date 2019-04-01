@@ -37,6 +37,19 @@ public class Player
 	{
 		return this.hand.removeCards(cards);
 	}
+	
+	/**
+	 * Returns the number of cards this player has
+	 * @author Chris
+	 * @return
+	 */
+	public int getNumOfCards() {return hand.getNumOfCards();}
+	/**
+	 * Returns this player's role
+	 * @author Chris
+	 * @return
+	 */
+	public String getRole() {return role;}
 
 	/* Transfers all the cards in the list from the player's active cards
 	 * to their inactive cards and returns a list of all cards successfully
