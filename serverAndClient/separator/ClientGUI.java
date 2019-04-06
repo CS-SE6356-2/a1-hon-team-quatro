@@ -1,3 +1,4 @@
+package separator;
 import java.io.IOException;
 
 import javafx.application.Application;
@@ -11,7 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-class ClientGUI extends Application{
+public class ClientGUI extends Application{
 	
 	ClientController game = null;
 	
