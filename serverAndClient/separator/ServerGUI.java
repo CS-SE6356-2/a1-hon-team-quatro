@@ -107,10 +107,10 @@ public class ServerGUI extends Application
 		root.getChildren().addAll(menuLabel,infoLabel,addressLabel, startButton, backButton, quitButton);
 		infoLabel.setText("Connect to:");
 		addressLabel.setText(address);
-		state = "Server";
+		state = "server";
 		
 		game.isServer = true;
-		game.clientCatcher.start();
+		game.serverThread.start();
 	}
 	void game()
 	{
@@ -120,7 +120,6 @@ public class ServerGUI extends Application
 		infoLabel.setText("");
 		state = "game";
 		
-		game.broadcaster.start();
 	}
 	
 	

@@ -106,6 +106,7 @@ public class DeckTest {
 			else if(choiceInt == 3)
 			{
 				//Quit out
+				input.close();
 				System.exit(0);
 			}
 			else

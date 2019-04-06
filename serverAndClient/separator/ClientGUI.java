@@ -1,4 +1,5 @@
 package separator;
+
 import java.io.IOException;
 
 import javafx.application.Application;
@@ -68,7 +69,7 @@ public class ClientGUI extends Application{
 		hostButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				host();
+				preHost();
 			}
 		});
 		
@@ -107,7 +108,7 @@ public class ClientGUI extends Application{
 		exitButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				Platform.exit();
+				Platform.exit();//closes the window
 			}
 		});
 		
@@ -136,22 +137,28 @@ public class ClientGUI extends Application{
 	
 	//methods called by buttons
 	void main() {
-		
 		if(state.equals("hosting") || state.equals("lobby"))
 			game.closeSocks(state);
 		
+		mainScreen();
+		
+		state = "main";
+	}
+	void mainScreen() {
 		root.getChildren().clear();
 		root.getChildren().addAll(menuLabel, hostButton, joinButton, exitButton);
 		menuLabel.setText("Main Menu");
-		state = "main";
 	}
 	
-	void host() {
+	void preHost() {
+		preHostScreen();
+		state = "host";
+	}
+	void preHostScreen() {
 		root.getChildren().clear();
 		root.getChildren().addAll(menuLabel, infoLabel, nameInput, serverButton, backButton);
 		menuLabel.setText("Host a Game");
 		infoLabel.setText("Enter your name and click \"Create Server\"");
-		state = "host";
 	}
 	
 	void hosting() {
@@ -169,33 +176,39 @@ public class ClientGUI extends Application{
 			return;
 		}
 		
-		
 		String result = game.connectToHost(address, yourName);
 		if(!result.equals("Connected!")) {
 			infoLabel.setText(result);
 			return;
 		}
-		
-		root.getChildren().clear();
-		root.getChildren().addAll(menuLabel, addressLabel, infoLabel, startButton, backButton);
-		menuLabel.setText("Host a Game");
 		addressLabel.setText(address);
-		infoLabel.setText(yourName);
+		
+		hostingScreen();
+		
 		state = "hosting";
 		
 		game.isServer = true;
-		game.clientCatcher.start();
-		game.serverListener.start();
+		game.serverThread.start();
+		game.clientThread.start();
+	}
+	void hostingScreen() {
+		root.getChildren().clear();
+		root.getChildren().addAll(menuLabel, addressLabel, infoLabel, startButton, backButton);
+		menuLabel.setText("Host a Game");
+		infoLabel.setText(yourName);
 	}
 	
 	void join() {
+		joinScreen();
+		state = "join";
+	}
+	void joinScreen() {
 		root.getChildren().clear();
 		root.getChildren().addAll(menuLabel, infoLabel, addressInput, nameInput, connectButton, backButton);
 		menuLabel.setText("Join a Game");
 		infoLabel.setText("Enter details below");
 		addressInput.setPromptText("Enter Host Address");
-		nameInput.setPromptText("Enter You Name");
-		state = "join";
+		nameInput.setPromptText("Enter Your Name");
 	}
 	
 	void connect() {
@@ -225,23 +238,26 @@ public class ClientGUI extends Application{
 	}
 	
 	void lobby(){
+		lobbyScreen();
+		state = "lobby";
+		game.clientThread.start();
+	}
+	void lobbyScreen(){
 		root.getChildren().clear();
 		root.getChildren().addAll(menuLabel, infoLabel, backButton);
 		menuLabel.setText("Lobby");
 		infoLabel.setText(yourName);
-		state = "lobby";
-		game.serverListener.start();
 	}
 	
 	void game() {
+		gameScreen();
+		state = "game";
+	}
+	void gameScreen() {
 		root.getChildren().clear();
 		root.getChildren().addAll(menuLabel, infoLabel, turnLabel, gameInput);
 		menuLabel.setText("Game");
-		infoLabel.setText("Waiting");
 		gameInput.setPromptText("Write your move here");
-		state = "game";
-		
-		if(game.isServer) game.broadcaster.start();
 	}
 	
 	void play() {
@@ -250,19 +266,30 @@ public class ClientGUI extends Application{
 			return;
 		}
 		
+		boolean success = endTurn(gameInput.getText());
+		
+		if(success) {
+			gameInput.setText("");
+			root.getChildren().remove(playButton);
+		}
+		else {
+			infoLabel.setText("Failed to reach server, try again");
+		}
+	}
+	
+	//call this to end the clients turn
+	//pass the string to write to the server
+	//returns true if the message was sucesesfully sent without error
+	boolean endTurn(String messageToServer) {
 		boolean success = false;
 		int attempts = 0;//keeps track of attempts
 		while(!success && attempts++ < 10){//tries ten times talk to server
 			try {
-				game.writeToServer(gameInput.getText());
-				gameInput.setText("");
-				root.getChildren().remove(playButton);
+				game.writeToServer(messageToServer);
 				success = true;
 			} catch (IOException e) {}
 		}
-		if(!success) {
-			infoLabel.setText("Failed to reach server, try again");
-		}
+		return success;
 	}
 
 	

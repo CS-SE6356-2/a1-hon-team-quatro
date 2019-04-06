@@ -10,7 +10,7 @@ public class Player
 	private String teamName;
 
 	/* Identifier marking the role the player has in the game */
-	private String role;
+	 String role;
 
 	/* Cards the player possesses (both active and inactive) */
 	private Hand hand;
