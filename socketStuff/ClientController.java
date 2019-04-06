@@ -23,13 +23,12 @@ public class ClientController {
 	ServerSocket serverSock;//the 'server' that will wait for a client socket to connect
 	ArrayList<Socket> clientSocks;
 	ArrayList<String> clientLabels;
-	ClientCatcher clientCatcher;
-	Broadcaster broadcaster;
+	ServerThread serverThread;
 	boolean isServer;
 	
-	//client thing
+	//client stuff
 	Socket thisSock; //the client
-	ServerListener serverListener;
+	ClientThread clientThread;
 		
 	public ClientController() {
 		gui = null;
@@ -37,12 +36,11 @@ public class ClientController {
 		serverSock = null;//the 'server' that will wait for a client socket to connect
 		clientSocks = new ArrayList<Socket>();
 		clientLabels = new ArrayList<String>();
-		clientCatcher = new ClientCatcher(this);
-		broadcaster = new Broadcaster(this);
+		serverThread = new ServerThread(this);
 		isServer = false;
 		
 		thisSock = null; //the client
-		serverListener = new ServerListener(this);
+		clientThread = new ClientThread(this);
 	}
 	
 	
@@ -53,7 +51,7 @@ public class ClientController {
 		boolean success = false;
 		int attempts = 0;//keeps track of attempts to establish connection
 		while(!success && attempts < 10){//tries ten times to create the server
-			System.out.println("Trying to make host");
+			/*DEBUG*/System.out.println("Trying to make host");
 			attempts++;
 			try{
 				serverSock = new ServerSocket(0);//throws IOException if port is taken
@@ -75,7 +73,7 @@ public class ClientController {
 			hostIP = "Unable to establish host";
 		}
 		
-		System.out.println("Made host: "+hostIP);
+		/*DEBUG*/System.out.println("Made host: "+hostIP);
 		
 		return hostIP;
 	}
@@ -140,118 +138,43 @@ public class ClientController {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class ClientCatcher extends Thread{
+
+class ClientThread extends Thread{
 	
 	ClientController game;
 	
-	public ClientCatcher(ClientController game) {
-	this.game = game;
-	}
-	
-	public void run() {
-		//add clients
-		try {
-			game.serverSock.setSoTimeout(1000);//sets time to wait for client to 1 second
-		}
-		catch(SocketException e){//thrown if the socket is bad
-			Platform.runLater(new Runnable() {
-			    @Override
-			    public void run() {
-			    	game.gui.addressLabel.setText("Unable to establish host");
-			    }
-			});
-		}
-	
-		while(game.gui.state.equals("hosting")) {
-			System.out.print(".");
-			try {
-				Socket sock = game.serverSock.accept();
-				if(!game.gui.state.equals("hosting")) return;
-				System.out.println("Client Connected");
-				DataInputStream in = new DataInputStream(sock.getInputStream());
-				String input = in.readUTF();
-				game.clientLabels.add(input);
-				game.clientSocks.add(sock);
-				System.out.println(input);
-				
-			}
-			catch(SocketTimeoutException e){//no clients connects within the timeout delay
-				//System.out.println("Nobody wanted to connect.");
-				//That's fine, we'll just keep waiting
-			}
-			catch(IOException e){
-				//System.out.println("IOException during accept()");
-				//oh well, won't have that client
-			}
-			catch(NullPointerException e){
-				//System.out.println("IOException during accept()");
-				//oh well, won't have that client
-			}
-		
-			//update gui
-			Platform.runLater(new Runnable() {
-			    @Override
-			    public void run() {
-			    	System.out.println("Updating gui");
-			    	String names = "";
-			    	for(int i = 0; i < game.clientSocks.size(); i++) {
-			    		if(game.clientSocks.get(i).isClosed()) {
-			    			game.clientSocks.remove(i);
-			    			game.clientLabels.remove(i);
-			    			i--;
-			    		}
-			    		else {
-			    			names = names+game.clientLabels.get(i)+"\n";
-			    		}
-			    	}
-			    	game.gui.infoLabel.setText(names);
-			    	
-			    }
-			});
-		}
-		
-		
-	}
-}//end ClientCatcher
-
-
-
-class ServerListener extends Thread{
-	
-	ClientController game;
-	
-	public ServerListener(ClientController game) {
+	public ClientThread(ClientController game) {
 		this.game = game;
 	}
 	
 	public void run() {
 		
+		/*DEBUG*/System.out.println(getId()+": Thread started");
+		
 		while(!game.gui.state.equals("main")) {
 		
 			try {
 				DataInputStream in = new DataInputStream(game.thisSock.getInputStream());
+				//*DEBUG*/System.out.println(getId()+": Wating for message from server");
 				String mes = in.readUTF();
+				//*DEBUG*/System.out.println(getId()+": got from server: "+mes);
 				
-				if(game.gui.state.equals("lobby")){
-					if(mes.equals("PLAY")) {
-						//update gui
-						Platform.runLater(new Runnable() {
+				if((game.gui.state.equals("lobby") || game.gui.state.equals("hosting")) && mes.equals("PLAY")){
+					//update gui
+					Platform.runLater(new Runnable() {
+					   @Override
+					   public void run() {
+						   game.gui.game();
+					   }
+					});
+				}
+				else if(game.gui.state.equals("lobby") || game.gui.state.equals("hosting")) {
+					Platform.runLater(new Runnable() {
 						   @Override
 						   public void run() {
-							   game.gui.game();
+							   game.gui.infoLabel.setText(mes);;
 						   }
 						});
-						
-						return;
-					}
-					else {
-						Platform.runLater(new Runnable() {
-							   @Override
-							   public void run() {
-								   game.gui.infoLabel.setText(mes);;
-							   }
-							});
-					}
 				}
 				else if(game.gui.state.equals("game")){
 					if(mes.indexOf(';') == -1) continue;
@@ -276,20 +199,82 @@ class ServerListener extends Thread{
 				
 			}
 		}
+		/*DEBUG*/System.out.println(getId()+": Thread ended");
 		
-		
-	}
+	}//end run
 }//end ServerListener
 
-class Broadcaster extends Thread{
+class ServerThread extends Thread{
 	
 	ClientController game;
 	
-	public Broadcaster(ClientController game) {
+	public ServerThread(ClientController game) {
 		this.game = game;
 	}
 	
 	public void run() {
+		
+		try {
+			game.serverSock.setSoTimeout(1000);//sets time to wait for client to 1 second
+		}
+		catch(SocketException e){//thrown if the socket is bad
+			Platform.runLater(new Runnable() {
+			    @Override
+			    public void run() {
+			    	game.gui.addressLabel.setText("Unable to establish host");
+			    }
+			});
+		}
+	
+		while(game.gui.state.equals("hosting")) {
+			try {
+				Socket sock = game.serverSock.accept();
+				if(!game.gui.state.equals("hosting")) return;
+				/*DEBUG*/System.out.println("Client Connected");
+				DataInputStream in = new DataInputStream(sock.getInputStream());
+				String input = in.readUTF();
+				game.clientLabels.add(input);
+				game.clientSocks.add(sock);
+				/*DEBUG*/System.out.println(input);
+				
+			}
+			catch(SocketTimeoutException e){//no clients connect within the timeout delay
+				//System.out.println("Nobody wanted to connect.");
+				//That's fine, we'll just keep waiting
+			}
+			catch(IOException e){
+				//System.out.println("IOException during accept()");
+				//oh well, won't have that client
+			}
+			catch(NullPointerException e){
+				//System.out.println("IOException during accept()");
+				//oh well, won't have that client
+			}
+		
+			//update gui
+			String names = "";
+	    	for(int i = 0; i < game.clientSocks.size(); i++) {
+	    		if(game.clientSocks.get(i).isClosed()) {
+	    			game.clientSocks.remove(i);
+	    			game.clientLabels.remove(i);
+	    			i--;
+	    		}
+	    		else {
+	    			names = names+game.clientLabels.get(i)+"\n";
+	    		}
+	    	}
+	    	
+	    	for(int i = 0; i < game.clientSocks.size(); i++) {
+				try {
+					DataOutputStream out = new DataOutputStream(game.clientSocks.get(i).getOutputStream());
+					out.writeUTF(names);
+				}
+				catch (IOException e) {}
+			}
+	    	
+		}
+		
+		if(!game.gui.state.equals("game")) return;
 		
 		for(int i = 0; i < game.clientSocks.size(); i++) {
 			try {
