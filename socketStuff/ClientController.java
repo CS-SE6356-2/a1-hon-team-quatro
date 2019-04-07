@@ -283,7 +283,7 @@ class ServerThread extends Thread{
 		
 		//3rd Stage@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		
-		//If we are here, check for which client is the host and had pressed start
+		//Send the string "PLAY" to all of the clients
 		for(int i = 0; i < game.clientSocks.size(); i++) {
 			try {
 				DataOutputStream out = new DataOutputStream(game.clientSocks.get(i).getOutputStream());
@@ -295,7 +295,15 @@ class ServerThread extends Thread{
 		//Initial startup for the game@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		int currentPlayer = 0;
 		String move = "Game started!";
+		//CREATE CARD GAME OBJECT
+		CardGame cardGame = new CardGame(clientLabels.size(), clientLabels, clientSocks, new File("cardlist"));
 		//4th Stage@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		
+		//DEAL CARDS
+		cardGame.dealCards();
+		
+		//TENTATIVELY
+		//HAVE THE SERVER SEND LIST OF STRINGS TO PLAYERS FOR THEIR HAND OF CARDS
 		
 		while(game.gui.state.equals("game")) {
 			
@@ -318,6 +326,8 @@ class ServerThread extends Thread{
 				move = game.clientLabels.get(currentPlayer) + " was skipped by server";
 			}
 			//???A good place to put Card game logic????
+			//CHECK MOVE
+			cardGame.checkMove(currentPlayer, move);
 			
 			
 			//Group 3@@@@@Tells Everyone what move was made@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -330,8 +340,11 @@ class ServerThread extends Thread{
 				catch (IOException e) {}
 			}
 			
+			//CHECK FOR WIN CONDITION
+			cardGame.checkWinCondition(currentPlayer, move);
+			
 			//currentPlayer++;
-			//if(currentPlayer >= game.clientSocks.size()) currentPlayer = 0;
+			//if(currentPlayer = game.clientSocks.size()) currentPlayer = 0;
 			currentPlayer = (currentPlayer+1)%game.clientSocks.size();
 		}
 		

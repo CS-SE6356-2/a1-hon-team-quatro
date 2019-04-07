@@ -1,6 +1,7 @@
 /* @author Jacob */
 
 import java.util.LinkedList;
+import java.net.Socket;
 
 /* Represents one of the people playing the game */
 public class Player
@@ -14,15 +15,19 @@ public class Player
 
 	/* Cards the player possesses (both active and inactive) */
 	private Hand hand;
+	
+	//Socket that the player is connected on
+	private Socket playerSock;
 
 /* Public methods */
 	
 	/* Constructor */
-	public Player(String cTeamName, String cRole)
+	public Player(String cTeamName, String cRole, Socket cSock)
 	{
 		this.teamName = cTeamName;
 		this.role = cRole;
 		this.hand = new Hand();
+		this.playerSock = cSock;
 	}
 
 	/* Adds all the cards in the list to the player's active cards */
@@ -49,6 +54,9 @@ public class Player
 	 * @author Chris
 	 * @return
 	 */
+	public void assignRole(String newRole) {
+		this.role = newRole;
+	}
 	public String getRole() {return role;}
 
 	/* Transfers all the cards in the list from the player's active cards

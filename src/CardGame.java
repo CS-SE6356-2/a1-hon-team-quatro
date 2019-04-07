@@ -2,6 +2,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.net.Socket;
 
 public class CardGame
 {
@@ -11,7 +12,8 @@ public class CardGame
 	Cardpile[] piles;			
 	
 	////Constructor////
-	public CardGame(int numOfPlayers, ArrayList<String> playerNames, String hostName, File cardList)
+	public CardGame(int numOfPlayers, ArrayList<String> playerNames, ArrayList<Socket> clientSocks,
+		File cardList)
 	{
 		players = new Player[numOfPlayers];		//Create a list of Players
 		cardDeck = new Deck(cardList);			//Create the deck of cards. The Card Game class thus has a reference to all cards
@@ -22,7 +24,7 @@ public class CardGame
 		piles[1] = new Cardpile("Used");
 		
 		//Create Players
-		createPlayers(playerNames);
+		createPlayers(playerNames, clientSocks);
 	}
 	
 	/**
@@ -49,11 +51,11 @@ public class CardGame
 		//Put the first card on top of the draw deck on to the used pile
 		piles[1].addCardsOnTop(piles[0].takeCards(1));
 	}
-	private void createPlayers(ArrayList<String> playerNames)
+	private void createPlayers(ArrayList<String> playerNames, ArrayList<Socket> clientSocks)
 	{
 		for(int i = 0; i < players.length; i++)
 		{
-			players[i] = new Player(playerNames.get(i),"Solo");
+			players[i] = new Player(playerNames.get(i),"Solo", clientSocks.get(i));
 		}
 	}
 	
@@ -62,8 +64,11 @@ public class CardGame
 	 * @author Chris
 	 * @return playerQueue
 	 */
-	private PlayerQueue sortPlayersInPlayOrder()
+	private PlayerQueue sortPlayersInPlayOrder(ArrayList<Socket> clientSocks, 
+		ArrayList<String> clientLabels)
 	{
+		//SORT CLIENTSOCKS AND CLIENTLABELS THE SAME
+		
 		int dealerNum;	//Track the index of the dealer
 		 //Index through array until dealer is found, if not then stop at end of list
 		for(dealerNum = 0;dealerNum < players.length||players[dealerNum].getRole().equals("Dealer"); dealerNum++);
@@ -87,13 +92,17 @@ public class CardGame
 		//TODO
 		return 21;
 	}
+	private bool isLegalMove(int currentPlayer, String move) {
+		//Depends on game type
+		return true;
+	}
 	
 	/**
 	 * Checks to see if a player has met the winning conditions
 	 * @author Chris
 	 * @return
 	 */
-	private int checkWinCondition()
+	private int checkWinCondition(int currentPlayer, String move)
 	{
 		for(int i = 0; i < players.length; i++)
 			if(players[i].getNumOfCards() == 0)
