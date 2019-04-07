@@ -58,6 +58,8 @@ public class Player
 		this.role = newRole;
 	}
 	public String getRole() {return role;}
+	public String getTeamName() {return teamName;}
+	public Socket getSock() {return playerSock;}
 
 	/* Transfers all the cards in the list from the player's active cards
 	 * to their inactive cards and returns a list of all cards successfully
@@ -93,5 +95,26 @@ public class Player
 	public LinkedList<Card> getInactiveCards()
 	{
 		return this.hand.getInactiveCards();
+	}
+	/**
+	 * The players card list uses 3 delimiters
+	 *	The ';' delimits the active list form the inactive list. ActiveCards|InactiveCards
+	 *	The ',' delimits the cards in a list from each other. Card1;Card2;Card3
+	 *	The ' ' delimits the specifics of a card. CardValue CardCategory
+	 * @author Chris
+	 * @return
+	 */
+	public String getCardListForUTF()
+	{
+		StringBuilder cardList = new StringBuilder();
+		
+		for(Card card: getActiveCards())
+			cardList.append(card.getVal()+" "+card.getCategory()+",");
+		cardList.setCharAt(cardList.length()-1, ';');
+		for(Card card: getInactiveCards())
+			cardList.append(card.getVal()+" "+card.getCategory()+",");
+		cardList.deleteCharAt(cardList.length()-1);
+		
+		return cardList.toString();
 	}
 }

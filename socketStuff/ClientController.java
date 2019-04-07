@@ -3,6 +3,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -12,6 +13,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import javafx.application.Platform;
 
@@ -142,9 +144,13 @@ public class ClientController {
 class ClientThread extends Thread{
 	
 	ClientController game;
+	LinkedList<Card> tempList;
+	String[] mess;
 	
 	public ClientThread(ClientController game) {
 		this.game = game;
+		tempList = new LinkedList<Card>();
+		mess = null;
 	}
 	
 	public void run() {
@@ -180,19 +186,52 @@ class ClientThread extends Thread{
 				}
 				//Client State 3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				else if(game.gui.state.equals("game")){
+					
+					//&&&&&Part 1&&&&&
+					//Check to see if we have a valid message that has semicolons
 					if(mes.indexOf(';') == -1) continue;
-					String[] mess = mes.split(";", 0);//game info;player whose turn it is
-				
+					
+					//Split the in message
+					//Either
+						//turn;game info;player whose turn it is
+					//or
+						//card;activeCards;inactiveCards
+					/*String[]*/ mess = mes.split(";", 0);
+					
+					//&&&&Part 2&&&&&
 					Platform.runLater(new Runnable() {
 					   @Override
 					   public void run() {
-						   game.gui.infoLabel.setText(mess[0]);
-						   if(mess[1].equals(game.gui.yourName)) {
-							   game.gui.turnLabel.setText("It's your turn");
-							   game.gui.root.getChildren().add(game.gui.playButton);
+						   
+						   //Update players messages about the previous move and whose turn it is
+						   if(mess[0].equals("turn"))
+						   {
+							   //Tells the Client what move was made
+							   game.gui.infoLabel.setText(mess[1]);
+							   
+							   //Determines if this Client is the one to go next
+							   if(mess[2].equals(game.gui.yourName)) {
+								   game.gui.turnLabel.setText("It's your turn");
+								   game.gui.root.getChildren().add(game.gui.playButton);
+							   }
+							   else {
+								   game.gui.turnLabel.setText("It's " + mess[2] + "'s turn");
+							   }
 						   }
-						   else {
-							   game.gui.turnLabel.setText("It's " + mess[1] + "'s turn");
+						   //Update each Client GUI's list of cards
+						   else if(mess[0].equals("cards"))
+						   {
+							   for(String card: mess[1].split(","))
+								   tempList.add(new Card(card));
+							   game.gui.yourCards.setActiveCards(tempList);
+							   tempList.clear();
+							   for(String card: mess[2].split(","))
+								   tempList.add(new Card(card));
+							   game.gui.yourCards.setInactiveCards(tempList);
+							   tempList.clear();
+							   
+							   //Test if client got the message
+							   game.gui.testLabel.setText(mes);
 						   }
 					   }
 					});
@@ -293,10 +332,13 @@ class ServerThread extends Thread{
 		}
 		
 		//Initial startup for the game@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-		int currentPlayer = 0;
 		String move = "Game started!";
+		
 		//CREATE CARD GAME OBJECT
-		CardGame cardGame = new CardGame(clientLabels.size(), clientLabels, clientSocks, new File("cardlist"));
+		CardGame cardGame = new CardGame(game.clientLabels.size(), game.clientLabels, game.clientSocks, new File("cardlist"));
+		cardGame.assignDealear(game.clientLabels.get(0));
+		PlayerQueue playerList = cardGame.sortPlayersInPlayOrder();
+		Player focusPlayer;
 		//4th Stage@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		
 		//DEAL CARDS
@@ -306,48 +348,63 @@ class ServerThread extends Thread{
 		//HAVE THE SERVER SEND LIST OF STRINGS TO PLAYERS FOR THEIR HAND OF CARDS
 		
 		while(game.gui.state.equals("game")) {
+			//Get the player that goes next
+			focusPlayer = playerList.nextPlayer();
 			
-			//Group 1@@@@@Message of what was the last move made and who goes next@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-			//This is where 
-			for(int i = 0; i < game.clientSocks.size(); i++) {
+			//Group 1@@@@@Send Card information to each player what cards they currently have@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			for(Player p: playerList) {
 				try {
-					DataOutputStream out = new DataOutputStream(game.clientSocks.get(i).getOutputStream());
-					out.writeUTF(move+";"+game.clientLabels.get(currentPlayer));
-					System.out.println("First group\n"+move+";"+game.clientLabels.get(currentPlayer));
+					DataOutputStream out = new DataOutputStream(p.getSock().getOutputStream());
+					//The players card list uses 3 delimiters
+					//The ';' delimits the active list form the inactive list. ActiveCards|InactiveCards
+					//The ',' delimits the cards in a list from each other. Card1;Card2;Card3
+					//The ' ' delimits the specifics of a card. CardValue CardCategory
+					
+					//Adding in an extra first group to notify what kind of message is sent
+					//Add word "cards" to denote we are updating cards
+					out.writeUTF("cards;"+p.getCardListForUTF());
 				}
 				catch (IOException e) {}
 			}
-			//Group 2@@@@@Receive the player's move@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-			try {
-				DataInputStream in = new DataInputStream(game.clientSocks.get(currentPlayer).getInputStream());
-				move = game.clientLabels.get(currentPlayer) + " played " + in.readUTF();
-			}
-			catch (IOException e) {
-				move = game.clientLabels.get(currentPlayer) + " was skipped by server";
-			}
-			//???A good place to put Card game logic????
-			//CHECK MOVE
-			cardGame.checkMove(currentPlayer, move);
 			
-			
-			//Group 3@@@@@Tells Everyone what move was made@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			//Group 2@@@@@Message of what was the last move made and who goes next@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			for(int i = 0; i < game.clientSocks.size(); i++) {
 				try {
 					DataOutputStream out = new DataOutputStream(game.clientSocks.get(i).getOutputStream());
-					out.writeUTF(move);
-					System.out.println("3rd Group\n"+move);
+					//Adding in an extra first group to notify what kind of message is sent
+					//Add word "turn" to denote we are updating labels about the move made/who goes next
+					out.writeUTF("turn;"+move+";"+focusPlayer.getTeamName());
+				}
+				catch (IOException e) {}
+			}
+			//Group 3@@@@@Receive the player's move@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			try {
+				DataInputStream in = new DataInputStream(focusPlayer.getSock().getInputStream());
+				move = focusPlayer.getTeamName() + " played " + in.readUTF();
+			}
+			catch (IOException e) {
+				move = focusPlayer.getTeamName() + " was skipped by server";
+			}
+			//???A good place to put Card game logic????
+			//CHECK MOVE
+			cardGame.checkMove(focusPlayer, move);
+			
+			
+			//Group 4@@@@@Tells Everyone what move was made@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			for(int i = 0; i < game.clientSocks.size(); i++) {
+				try {
+					DataOutputStream out = new DataOutputStream(game.clientSocks.get(i).getOutputStream());
+					//Adding in an extra first group to notify what kind of message is sent
+					//Add word "turn" to denote we are updating labels about the move made/who goes next
+					out.writeUTF("turn;"+move);
 				}
 				catch (IOException e) {}
 			}
 			
 			//CHECK FOR WIN CONDITION
-			win = cardGame.checkWinCondition(currentPlayer, move);
-			if(win) {
-				//TODO
-			}
-			//currentPlayer++;
-			//if(currentPlayer = game.clientSocks.size()) currentPlayer = 0;
-			currentPlayer = (currentPlayer+1)%game.clientSocks.size();
+
+			cardGame.checkWinCondition(focusPlayer, move);
+			
 		}
 		
 		

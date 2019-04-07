@@ -1,6 +1,7 @@
 /* @author Jacob  */
 
 import java.util.LinkedList;
+import java.util.List;
 
 
 /* Represents the cards in a specific Player's possession. */
@@ -133,6 +134,17 @@ public class Hand
 	public LinkedList<Card> getInactiveCards()
 	{
 		return this.inactiveCards;
+	}
+	
+	//These both are used for the hand used in the ClientGUI
+	//Both make shallow copies of the lists
+	public void setActiveCards(List<Card> activeCards)
+	{
+		this.activeCards = new LinkedList<Card>(activeCards);
+	}
+	public void setInactiveCards(List<Card> inactiveCards)
+	{
+		this.inactiveCards = new LinkedList<Card>(inactiveCards);
 	}
 
 	public int getNumOfCards()

@@ -1,8 +1,10 @@
+import java.util.Iterator;
+
 /**
  * Provides a means for circling through a list of players, handling skips, and reversing order
  * @author Chris
  */
-public class PlayerQueue
+public class PlayerQueue implements Iterable<Player>
 {
 	////Member Variables////
 	private Node head;			//Tracks the player to go next
@@ -95,10 +97,15 @@ public class PlayerQueue
 		head = (reversed)? head.prev: head.next;
 	}
 	/**
-	 * Sets the reverse flag to its opposite
+	 * Sets the reverse flag to its opposite. Calls skipPlayer() twice to set the order to the proper Player
 	 * @author Chris
 	 */
-	public void reverseOrder() {reversed = !reversed;}
+	public void reverseOrder() 
+	{
+		reversed = !reversed;
+		skipPlayer();
+		skipPlayer();
+	}
 	/**
 	 * Clears the queue
 	 * @author Chris
@@ -121,5 +128,12 @@ public class PlayerQueue
 			next = null;
 			prev = null;
 		}
+	}
+
+	@Override
+	public Iterator<Player> iterator() 
+	{
+		
+		return null;
 	}
 }

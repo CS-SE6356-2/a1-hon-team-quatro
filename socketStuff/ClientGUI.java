@@ -17,6 +17,7 @@ public class ClientGUI extends Application{
 	
 	String state;
 	String yourName;
+	Hand yourCards;
 	
 	//GUI stuff
 	VBox root = new VBox();
@@ -32,6 +33,7 @@ public class ClientGUI extends Application{
 	Text addressLabel;
 	Text infoLabel;
 	Text turnLabel;
+	Text testLabel;
 	TextField addressInput;
 	TextField nameInput;
 	TextField gameInput;
@@ -45,6 +47,7 @@ public class ClientGUI extends Application{
 		
 		state = "";
 		yourName = "Player";
+		yourCards = new Hand();
 		
 		root = new VBox();
 		hostButton = new Button("Host Game");//part of main menu screen
@@ -59,6 +62,7 @@ public class ClientGUI extends Application{
 		addressLabel = new Text("Starting server...");//part of host screen
 		infoLabel = new Text("Enter details below");//part of join and game screen
 		turnLabel = new Text();//part of game screen
+		testLabel = new Text();		//Used to test if a message is recieved
 		addressInput = new TextField();//part of join screen
 		nameInput = new TextField();//part of host and join screen
 		gameInput = new TextField();//part of game screen
@@ -253,7 +257,7 @@ public class ClientGUI extends Application{
 	}
 	void gameScreen() {
 		root.getChildren().clear();
-		root.getChildren().addAll(menuLabel, infoLabel, turnLabel, gameInput);
+		root.getChildren().addAll(menuLabel, infoLabel, turnLabel, testLabel, gameInput);
 		menuLabel.setText("Game");
 		gameInput.setPromptText("Write your move here");
 	}

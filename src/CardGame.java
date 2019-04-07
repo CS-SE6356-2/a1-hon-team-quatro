@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.net.Socket;
@@ -64,10 +65,9 @@ public class CardGame
 	 * @author Chris
 	 * @return playerQueue
 	 */
-	private PlayerQueue sortPlayersInPlayOrder(ArrayList<Socket> clientSocks, 
-		ArrayList<String> clientLabels)
+	public PlayerQueue sortPlayersInPlayOrder()
 	{
-		//SORT CLIENTSOCKS AND CLIENTLABELS THE SAME
+		//CLIENTSOCKS AND CLIENTLABELS are automatically sorted within the playerQueue as they are part of the Player object
 		
 		int dealerNum;	//Track the index of the dealer
 		 //Index through array until dealer is found, if not then stop at end of list
@@ -81,6 +81,22 @@ public class CardGame
 		
 		return playOrder;	//Return  the queue
 	}
+	/**
+	 * Assigns the given player as the new dealer.
+	 * @author Chris
+	 * @param newDealer
+	 * @return True if a new dealer has been assigned | False if not
+	 */
+	public boolean assignDealear(String newDealer)
+	{
+		for(Player p: players)
+			if(p.getTeamName().equals(newDealer))
+			{
+				p.assignRole("Dealer");
+				return true;
+			}
+		return false;
+	}
 	
 	private String checkForTrick(List<Card> trick)
 	{
@@ -92,7 +108,8 @@ public class CardGame
 		//TODO
 		return 21;
 	}
-	private bool checkMove(int currentPlayer, String move) {
+
+	private boolean isLegalMove(int currentPlayer, String move) {
 		//Depends on game type
 		return true;
 	}
@@ -102,7 +119,7 @@ public class CardGame
 	 * @author Chris
 	 * @return
 	 */
-	private int checkWinCondition(int currentPlayer, String move)
+	public int checkWinCondition(Player focusPlayer, String move)
 	{
 		for(int i = 0; i < players.length; i++)
 			if(players[i].getNumOfCards() == 0)
@@ -121,5 +138,11 @@ public class CardGame
 		//TODO the control flow
 		
 		return "A winner is you!";
+	}
+
+	public void checkMove(Player focusPlayer, String move) 
+	{
+		// TODO Extend Game Logic here, what kind of card or action did they make
+		
 	}
 }

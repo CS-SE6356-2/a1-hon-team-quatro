@@ -22,6 +22,13 @@ public class Card{
 		category = c;
 	}
 	
+	public Card(String card) 
+	{
+		int delimiter = card.indexOf(" ");
+		value = card.substring(0, delimiter);
+		category = card.substring(delimiter, card.length());
+	}
+
 	/****	FUNCTIONS	****/
 	//Method to print card stats
 	public void printCard()
