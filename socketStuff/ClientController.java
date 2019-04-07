@@ -159,6 +159,7 @@ class ClientThread extends Thread{
 				String mes = in.readUTF();
 				//*DEBUG*/System.out.println(getId()+": got from server: "+mes);
 				
+				//Client State 1@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				if((game.gui.state.equals("lobby") || game.gui.state.equals("hosting")) && mes.equals("PLAY")){
 					//update gui
 					Platform.runLater(new Runnable() {
@@ -168,6 +169,7 @@ class ClientThread extends Thread{
 					   }
 					});
 				}
+				//Client State 2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				else if(game.gui.state.equals("lobby") || game.gui.state.equals("hosting")) {
 					Platform.runLater(new Runnable() {
 						   @Override
@@ -176,6 +178,7 @@ class ClientThread extends Thread{
 						   }
 						});
 				}
+				//Client State 3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				else if(game.gui.state.equals("game")){
 					if(mes.indexOf(';') == -1) continue;
 					String[] mess = mes.split(";", 0);//game info;player whose turn it is
@@ -225,7 +228,7 @@ class ServerThread extends Thread{
 			    }
 			});
 		}
-	
+		//1st Stage@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		while(game.gui.state.equals("hosting")) {
 			try {
 				Socket sock = game.serverSock.accept();
@@ -273,9 +276,14 @@ class ServerThread extends Thread{
 			}
 	    	
 		}
+		//2nd Stage@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		
+		//Don't move past if this thread's client hasn't gone in game yet
 		if(!game.gui.state.equals("game")) return;
 		
+		//3rd Stage@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		
+		//If we are here, check for which client is the host and had pressed start
 		for(int i = 0; i < game.clientSocks.size(); i++) {
 			try {
 				DataOutputStream out = new DataOutputStream(game.clientSocks.get(i).getOutputStream());
@@ -284,19 +292,24 @@ class ServerThread extends Thread{
 			catch (IOException e) {}
 		}
 		
+		//Initial startup for the game@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		int currentPlayer = 0;
 		String move = "Game started!";
+		//4th Stage@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		
 		while(game.gui.state.equals("game")) {
 			
+			//Group 1@@@@@Message of what was the last move made and who goes next@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			//This is where 
 			for(int i = 0; i < game.clientSocks.size(); i++) {
 				try {
 					DataOutputStream out = new DataOutputStream(game.clientSocks.get(i).getOutputStream());
 					out.writeUTF(move+";"+game.clientLabels.get(currentPlayer));
+					System.out.println("First group\n"+move+";"+game.clientLabels.get(currentPlayer));
 				}
 				catch (IOException e) {}
 			}
-			
+			//Group 2@@@@@Receive the player's move@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			try {
 				DataInputStream in = new DataInputStream(game.clientSocks.get(currentPlayer).getInputStream());
 				move = game.clientLabels.get(currentPlayer) + " played " + in.readUTF();
@@ -304,18 +317,22 @@ class ServerThread extends Thread{
 			catch (IOException e) {
 				move = game.clientLabels.get(currentPlayer) + " was skipped by server";
 			}
+			//???A good place to put Card game logic????
 			
+			
+			//Group 3@@@@@Tells Everyone what move was made@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			for(int i = 0; i < game.clientSocks.size(); i++) {
 				try {
 					DataOutputStream out = new DataOutputStream(game.clientSocks.get(i).getOutputStream());
 					out.writeUTF(move);
+					System.out.println("3rd Group\n"+move);
 				}
 				catch (IOException e) {}
 			}
 			
-			currentPlayer++;
-			if(currentPlayer >= game.clientSocks.size()) currentPlayer = 0;
-			
+			//currentPlayer++;
+			//if(currentPlayer >= game.clientSocks.size()) currentPlayer = 0;
+			currentPlayer = (currentPlayer+1)%game.clientSocks.size();
 		}
 		
 		

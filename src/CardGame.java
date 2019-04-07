@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ public class CardGame
 	Cardpile[] piles;			
 	
 	////Constructor////
-	public CardGame(int numOfPlayers, File cardList)
+	public CardGame(int numOfPlayers, ArrayList<String> playerNames, String hostName, File cardList)
 	{
 		players = new Player[numOfPlayers];		//Create a list of Players
 		cardDeck = new Deck(cardList);			//Create the deck of cards. The Card Game class thus has a reference to all cards
@@ -21,7 +22,7 @@ public class CardGame
 		piles[1] = new Cardpile("Used");
 		
 		//Create Players
-		createPlayers();
+		createPlayers(playerNames);
 	}
 	
 	/**
@@ -48,9 +49,12 @@ public class CardGame
 		//Put the first card on top of the draw deck on to the used pile
 		piles[1].addCardsOnTop(piles[0].takeCards(1));
 	}
-	private void createPlayers()
+	private void createPlayers(ArrayList<String> playerNames)
 	{
-		
+		for(int i = 0; i < players.length; i++)
+		{
+			players[i] = new Player(playerNames.get(i),"Solo");
+		}
 	}
 	
 	/**
@@ -100,6 +104,8 @@ public class CardGame
 	
 	public String playGame()
 	{
+		//Assign a player as the dealer
+		//Sort the players in a play order
 		PlayerQueue playOrder = sortPlayersInPlayOrder(); //Before starting the rounds, Sort the players
 		dealCards();					//Then deal out the cards to the players and cardPiles
 		
