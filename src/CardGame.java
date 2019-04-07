@@ -92,7 +92,7 @@ public class CardGame
 		//TODO
 		return 21;
 	}
-	private bool isLegalMove(int currentPlayer, String move) {
+	private bool checkMove(int currentPlayer, String move) {
 		//Depends on game type
 		return true;
 	}

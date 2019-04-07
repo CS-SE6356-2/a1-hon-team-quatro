@@ -341,8 +341,10 @@ class ServerThread extends Thread{
 			}
 			
 			//CHECK FOR WIN CONDITION
-			cardGame.checkWinCondition(currentPlayer, move);
-			
+			win = cardGame.checkWinCondition(currentPlayer, move);
+			if(win) {
+				//TODO
+			}
 			//currentPlayer++;
 			//if(currentPlayer = game.clientSocks.size()) currentPlayer = 0;
 			currentPlayer = (currentPlayer+1)%game.clientSocks.size();
