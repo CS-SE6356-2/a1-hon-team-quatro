@@ -57,9 +57,8 @@ public class PlayerQueue implements Iterable<Player>
 			head.prev = newNode;
 			newNode.next = head;
 			newNode.prev = head;
-			
 		}
-		else						//Adds the player in the queue
+		else			//Adds the player in the queue
 		{
 			//Set a pointer to the old tail
 			Node tail = head.prev;
@@ -69,6 +68,11 @@ public class PlayerQueue implements Iterable<Player>
 			//Have the new node point to its respective next and prev
 			newNode.next = head;
 			newNode.prev = tail;
+			System.out.println(head.prev.data.getTeamName());
+			System.out.println(head.data.getTeamName());
+			System.out.println(head.next.data.getTeamName());
+			System.out.println(head.next.next.data.getTeamName());
+			System.out.println(head.next.next.next.data.getTeamName());
 		}
 	}
 	
@@ -146,26 +150,26 @@ public class PlayerQueue implements Iterable<Player>
 	class PlayerQueueIterator implements Iterator<Player>
 	{
 		Node focus;
-		boolean notHitHead;
+		int counter;
 
 		public PlayerQueueIterator(PlayerQueue playerQueue) 
 		{
 			focus = playerQueue.head;
-			notHitHead = true;
+			counter = 0;
 		}
 
 		@Override
 		public boolean hasNext() 
 		{
-			return focus != head||notHitHead;
+			return counter<size;
 		}
 
 		@Override
 		public Player next() 
 		{
-			notHitHead = false;
+			++counter;
 			Player temp = focus.data;
-			focus = head.next;
+			focus = focus.next;
 			return temp;
 		}
 		

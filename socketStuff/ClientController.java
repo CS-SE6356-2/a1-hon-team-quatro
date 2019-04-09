@@ -359,7 +359,6 @@ class ServerThread extends Thread{
 			
 			//Group 1@@@@@Send Card information to each player what cards they currently have@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			for(Player p: playerList) {
-				System.out.println(p.getCardListForUTF());
 				try {
 					DataOutputStream out = new DataOutputStream(p.getSock().getOutputStream());
 					//The players card list uses 3 delimiters

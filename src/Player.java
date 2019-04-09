@@ -111,7 +111,7 @@ public class Player
 		if(getActiveCards().size()>0)
 		{
 			for(Card card: getActiveCards())
-				cardList.append(card.getVal()+" "+card.getCategory()+",");
+				cardList.append(card.getVal()+""+card.getCategory()+",");
 			cardList.setCharAt(cardList.lastIndexOf(","), ';');
 		}
 		else
