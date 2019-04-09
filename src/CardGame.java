@@ -53,6 +53,7 @@ public class CardGame
 		//Put the first card on top of the draw deck on to the used pile
 		piles[1].addCardsOnTop(piles[0].takeCards(1));
 	}
+	public void shuffleCards() {cardDeck.shuffle();}
 	private void createPlayers(ArrayList<String> playerNames, ArrayList<Socket> clientSocks)
 	{
 		for(int i = 0; i < players.length; i++)
@@ -74,6 +75,8 @@ public class CardGame
 		 //Index through array until dealer is found, if not then stop at end of list
 		for(dealerNum = 0;dealerNum < players.length && !players[dealerNum].getRole().equals("Dealer"); dealerNum++);
 		
+		//Move number to next in list as dealer doesn't usually go first
+		dealerNum = (dealerNum+1)%players.length;
 		//Create the playerQueue
 		PlayerQueue playOrder = new PlayerQueue();
 		

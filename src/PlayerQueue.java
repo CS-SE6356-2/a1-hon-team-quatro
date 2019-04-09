@@ -68,11 +68,6 @@ public class PlayerQueue implements Iterable<Player>
 			//Have the new node point to its respective next and prev
 			newNode.next = head;
 			newNode.prev = tail;
-			System.out.println(head.prev.data.getTeamName());
-			System.out.println(head.data.getTeamName());
-			System.out.println(head.next.data.getTeamName());
-			System.out.println(head.next.next.data.getTeamName());
-			System.out.println(head.next.next.next.data.getTeamName());
 		}
 	}
 	
