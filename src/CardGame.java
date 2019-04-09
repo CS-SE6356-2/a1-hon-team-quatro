@@ -109,8 +109,10 @@ public class CardGame
 		//TODO
 		return 21;
 	}
-	private boolean isLegalMove(int currentPlayer, String move) {
+
+	private boolean isLegalMove(Player focusPlayer, String move) {
 		//Depends on game type
+		// TODO Extend Game Logic here, what kind of card or action did they make
 		return true;
 	}
 	
@@ -119,30 +121,13 @@ public class CardGame
 	 * @author Chris
 	 * @return
 	 */
-	public int checkWinCondition(Player focusPlayer, String move)
+	public boolean checkWinCondition(Player focusPlayer, String move)
 	{
+		//TODO extend into a specific game type (set of rules)
 		for(int i = 0; i < players.length; i++)
 			if(players[i].getNumOfCards() == 0)
 				return i;
 		return -1;
 	}
-	
-	
-	public String playGame()
-	{
-		//Assign a player as the dealer
-		//Sort the players in a play order
-		PlayerQueue playOrder = sortPlayersInPlayOrder(); //Before starting the rounds, Sort the players
-		dealCards();					//Then deal out the cards to the players and cardPiles
-		
-		//TODO the control flow
-		
-		return "A winner is you!";
-	}
 
-	public void checkMove(Player focusPlayer, String move) 
-	{
-		// TODO Extend Game Logic here, what kind of card or action did they make
-		
-	}
 }

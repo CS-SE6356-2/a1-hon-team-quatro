@@ -394,8 +394,10 @@ class ServerThread extends Thread{
 			}
 			//???A good place to put Card game logic????
 			//CHECK MOVE
-			cardGame.checkMove(focusPlayer, move);
-			
+			boolean legal = cardGame.isLegalMove(focusPlayer, move);
+			if(!legal) {
+				//TODO extend to deal with illegal moves
+			}
 			
 			//Group 4@@@@@Tells Everyone what move was made@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			for(int i = 0; i < game.clientSocks.size(); i++) {
@@ -409,7 +411,11 @@ class ServerThread extends Thread{
 			}
 			
 			//CHECK FOR WIN CONDITION
-			cardGame.checkWinCondition(focusPlayer, move);
+
+			boolean win = cardGame.checkWinCondition(focusPlayer, move);
+			if(win) {
+				//TODO extend to some final state where focusPlayer won
+			}
 			
 		}
 		

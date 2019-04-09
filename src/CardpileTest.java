@@ -18,6 +18,10 @@ public class CardpileTest {
 		
 		printCardpile(pile);								//Print the pile before shuffle
 		
+		pile.takeCards(1);
+		
+		printCardpile(pile);								//Print the pile before shuffle
+		
 		pile.shuffle();										//Shuffle the pile
 		
 		printCardpile(pile);								//Print the pile after shuffle
