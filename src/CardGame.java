@@ -110,7 +110,7 @@ public class CardGame
 		return 21;
 	}
 
-	private boolean isLegalMove(Player focusPlayer, String move) {
+	public boolean isLegalMove(Player focusPlayer, String move) {
 		//Depends on game type
 		// TODO Extend Game Logic here, what kind of card or action did they make
 		return true;
@@ -124,10 +124,9 @@ public class CardGame
 	public boolean checkWinCondition(Player focusPlayer, String move)
 	{
 		//TODO extend into a specific game type (set of rules)
-		for(int i = 0; i < players.length; i++)
-			if(players[i].getNumOfCards() == 0)
-				return i;
-		return -1;
+		if(focusPlayer.getNumOfCards() == 0)
+			return true;
+		return false;
 	}
 
 }

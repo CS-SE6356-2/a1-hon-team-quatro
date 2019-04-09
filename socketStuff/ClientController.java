@@ -415,6 +415,7 @@ class ServerThread extends Thread{
 			boolean win = cardGame.checkWinCondition(focusPlayer, move);
 			if(win) {
 				//TODO extend to some final state where focusPlayer won
+				System.out.println("A winner is "+focusPlayer.getTeamName());
 			}
 			
 		}
