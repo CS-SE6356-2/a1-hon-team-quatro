@@ -170,6 +170,13 @@ public class ClientGUI extends Application{
 			connectButton.setDisable(false);
 			return;
 		}
+		else if(!validateName(nameInput.getText()))
+		{
+			infoLabel.setText("Please use only the characters a-zA-Z0-9 or ' '");
+			connectButton.setDisable(false);
+			return;
+		}
+		
 		yourName = nameInput.getText();
 		
 		String address = game.setupHost();
@@ -297,6 +304,16 @@ public class ClientGUI extends Application{
 	
 	public void launchGUI() {
 		launch();
+	}
+	
+	public boolean validateName(String name)
+	{
+		for(char c: name.toCharArray())
+			if(!(Character.isLetterOrDigit(c)||Character.isSpaceChar(c)))	//If it is not the case that the character is a-zA-Z0-9 or ' '
+				return false;
+		return true;
+						
+				
 	}
 	
 }//end of GUI

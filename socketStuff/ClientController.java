@@ -347,6 +347,8 @@ class ServerThread extends Thread{
 		Player focusPlayer;
 		//4th Stage@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 		
+		//Shuffle Cards
+		cardGame.shuffleCards();
 		//DEAL CARDS
 		cardGame.dealCards();
 		
