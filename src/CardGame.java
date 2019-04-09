@@ -34,12 +34,13 @@ public class CardGame
 	void dealCards()
 	{
 		int currentCard = 0;
-		List<Card> temp = new LinkedList<Card>();
+		LinkedList<Card> temp = new LinkedList<Card>();
 		for(Player player: players)
 		{
-			for(;currentCard < 7; currentCard++)			//Get a list of cards that will be of even size to a player. UNO starts off with players having 7 cards
+			for(;temp.size() < 7; currentCard++)			//Get a list of cards that will be of even size to a player. UNO starts off with players having 7 cards
 				temp.add(cardDeck.cards.get(currentCard));		//add card reference to list
-			//Give players their cards
+				//Give players their cards
+			player.addCards(temp);
 			temp.clear();									//Clear the list so we can give the next player their cards
 		}
 		
@@ -71,7 +72,7 @@ public class CardGame
 		
 		int dealerNum;	//Track the index of the dealer
 		 //Index through array until dealer is found, if not then stop at end of list
-		for(dealerNum = 0;dealerNum < players.length||players[dealerNum].getRole().equals("Dealer"); dealerNum++);
+		for(dealerNum = 0;dealerNum < players.length && !players[dealerNum].getRole().equals("Dealer"); dealerNum++);
 		
 		//Create the playerQueue
 		PlayerQueue playOrder = new PlayerQueue();
