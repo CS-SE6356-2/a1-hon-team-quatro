@@ -46,11 +46,18 @@ public class PlayerQueue implements Iterable<Player>
 	private void enqueue(Node newNode)
 	{
 		if(size == 0)				//Put the player at the head if there are no other players
+		{
 			head = newNode;
+			head.next = head;
+			head.prev = head;
+		}
 		else if (size == 1)			//Put the player as the tail. This separates the head from being the tail
 		{
 			head.next = newNode;
-			head.prev = head.next;
+			head.prev = newNode;
+			newNode.next = head;
+			newNode.prev = head;
+			
 		}
 		else						//Adds the player in the queue
 		{
@@ -132,8 +139,35 @@ public class PlayerQueue implements Iterable<Player>
 
 	@Override
 	public Iterator<Player> iterator() 
+	{	
+		return new PlayerQueueIterator(this);
+	}
+	
+	class PlayerQueueIterator implements Iterator<Player>
 	{
+		Node focus;
+		boolean notHitHead;
+
+		public PlayerQueueIterator(PlayerQueue playerQueue) 
+		{
+			focus = playerQueue.head;
+			notHitHead = true;
+		}
+
+		@Override
+		public boolean hasNext() 
+		{
+			return focus != head||notHitHead;
+		}
+
+		@Override
+		public Player next() 
+		{
+			notHitHead = false;
+			Player temp = focus.data;
+			focus = head.next;
+			return temp;
+		}
 		
-		return null;
 	}
 }

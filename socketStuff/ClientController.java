@@ -164,7 +164,6 @@ class ClientThread extends Thread{
 				//*DEBUG*/System.out.println(getId()+": Wating for message from server");
 				String mes = in.readUTF();
 				//*DEBUG*/System.out.println(getId()+": got from server: "+mes);
-				
 				//Client State 1@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 				if((game.gui.state.equals("lobby") || game.gui.state.equals("hosting")) && mes.equals("PLAY")){
 					//update gui
@@ -221,14 +220,21 @@ class ClientThread extends Thread{
 						   //Update each Client GUI's list of cards
 						   else if(mess[0].equals("cards"))
 						   {
-							   for(String card: mess[1].split(","))
-								   tempList.add(new Card(card));
-							   game.gui.yourCards.setActiveCards(tempList);
-							   tempList.clear();
-							   for(String card: mess[2].split(","))
-								   tempList.add(new Card(card));
-							   game.gui.yourCards.setInactiveCards(tempList);
-							   tempList.clear();
+							   if(!mess[1].equals(" "))
+							   {
+								   for(String card: mess[1].split(","))
+									   tempList.add(new Card(card));
+								   game.gui.yourCards.setActiveCards(tempList);
+								   tempList.clear();
+							   }
+							   
+							   if(!mess[2].equals(" "))
+							   {
+								   for(String card: mess[2].split(","))
+									   tempList.add(new Card(card));
+								   game.gui.yourCards.setInactiveCards(tempList);
+								   tempList.clear();
+							   }
 							   
 							   //Test if client got the message
 							   game.gui.testLabel.setText(mes);
@@ -335,7 +341,7 @@ class ServerThread extends Thread{
 		String move = "Game started!";
 		
 		//CREATE CARD GAME OBJECT
-		CardGame cardGame = new CardGame(game.clientLabels.size(), game.clientLabels, game.clientSocks, new File("cardlist"));
+		CardGame cardGame = new CardGame(game.clientLabels.size(), game.clientLabels, game.clientSocks, new File("cardlist.txt"));
 		cardGame.assignDealear(game.clientLabels.get(0));
 		PlayerQueue playerList = cardGame.sortPlayersInPlayOrder();
 		Player focusPlayer;
@@ -353,6 +359,7 @@ class ServerThread extends Thread{
 			
 			//Group 1@@@@@Send Card information to each player what cards they currently have@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			for(Player p: playerList) {
+				System.out.println(p.getCardListForUTF());
 				try {
 					DataOutputStream out = new DataOutputStream(p.getSock().getOutputStream());
 					//The players card list uses 3 delimiters

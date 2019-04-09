@@ -108,12 +108,23 @@ public class Player
 	{
 		StringBuilder cardList = new StringBuilder();
 		
-		for(Card card: getActiveCards())
-			cardList.append(card.getVal()+" "+card.getCategory()+",");
-		cardList.setCharAt(cardList.length()-1, ';');
-		for(Card card: getInactiveCards())
-			cardList.append(card.getVal()+" "+card.getCategory()+",");
-		cardList.deleteCharAt(cardList.length()-1);
+		if(getActiveCards().size()>0)
+		{
+			for(Card card: getActiveCards())
+				cardList.append(card.getVal()+" "+card.getCategory()+",");
+			cardList.setCharAt(cardList.lastIndexOf(","), ';');
+		}
+		else
+			cardList.append(" ;");
+		
+		if(getInactiveCards().size()>0)
+		{
+			for(Card card: getInactiveCards())
+				cardList.append(card.getVal()+" "+card.getCategory()+",");
+			cardList.deleteCharAt(cardList.lastIndexOf(","));
+		}
+		else
+			cardList.append(' ');
 		
 		return cardList.toString();
 	}
